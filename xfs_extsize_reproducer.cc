@@ -74,6 +74,8 @@ int main() {
 
     if (rand() % 3 == 0)
       fsync(fd);
+    if (rand() % 3 == 0)
+      syncfs(fd);
     close(fd);
     fd = open("test", O_RDWR, 0666);
     assert(fd >= 0);
