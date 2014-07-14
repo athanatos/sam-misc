@@ -63,8 +63,8 @@ int main() {
     assert(len >= 0);
     assert(offset >= 0);
     std::cout << offset << "~" << len << std::endl;
-    assert(len < OBJSIZE);
-    assert(offset + len < OBJSIZE);
+    assert(len <= OBJSIZE);
+    assert(offset + len <= OBJSIZE);
 
     r = read(randfd, buf, len);
     assert(r == len);
