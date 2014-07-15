@@ -9,7 +9,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <attr/xattr.h>
-#include <fnctl.h>
+#include <fcntl.h>
 
 #define OBJSIZE (4<<20)
 #define ATTRSIZEMAX (1<<10)
