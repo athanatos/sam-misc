@@ -85,17 +85,10 @@ int main() {
     assert(len <= OBJSIZE);
     assert(offset + len <= OBJSIZE);
 
-#if 0
-    if (len > 8<<10) {
-      memset(buf, 0, len);
-    } else {
-#endif
-      {
-      r = read(randfd, buf, len);
-      assert(r == len);
-    }
+    r = read(randfd, buf, len);
+    assert(r == len);
 
-    getsetattr(buf, fd);
+    //getsetattr(buf, fd);
 
     memcpy(check + offset, buf, len);
     r = pwrite(fd, buf, len, offset);
