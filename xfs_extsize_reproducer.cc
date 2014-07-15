@@ -15,7 +15,6 @@
 #define ATTRSIZEMAX (1<<10)
 
 int main() {
-  int randfd = open("/dev/urandom", O_RDONLY);
   int fd = open("test", O_RDWR|O_CREAT|O_EXCL, 0666);
   assert(fd >= 0);
 
@@ -70,9 +69,6 @@ int main() {
     assert(len <= OBJSIZE);
     assert(offset + len <= OBJSIZE);
 
-//    r = read(randfd, buf, len);
-//    assert(r == len);
-
     memcpy(check + offset, buf, len);
     r = pwrite(fd, buf, len, offset);
     assert(r == len);
@@ -99,5 +95,4 @@ int main() {
   delete[] buf;
   delete[] check;
   close(fd);
-  close(randfd);
 }
