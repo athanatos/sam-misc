@@ -14,21 +14,6 @@
 #define OBJSIZE (4<<20)
 #define ATTRSIZEMAX (1<<10)
 
-void getsetattr(char *randbuf, int fd) {
-  char buf[ATTRSIZEMAX];
-  fgetxattr(fd, "user.ceph._", buf, sizeof(buf));
-  fgetxattr(fd, "user.ceph.snapset", buf, sizeof(buf));
-
-  int s1 = rand() % ATTRSIZEMAX;
-  if (s1 > 100)
-    s1 -= 10;
-  int s2 = rand() % ATTRSIZEMAX;
-  if (s2 > 100)
-    s2 -= 10;
-  int r = fsetxattr(fd, "user.ceph._", randbuf, s1, 0);
-  r = fsetxattr(fd, "user.ceph.snapset", randbuf + s1, s2, 0);
-}
-
 int main() {
   int randfd = open("/dev/urandom", O_RDONLY);
   int fd = open("test", O_RDWR|O_CREAT|O_EXCL, 0666);
@@ -85,10 +70,8 @@ int main() {
     assert(len <= OBJSIZE);
     assert(offset + len <= OBJSIZE);
 
-    r = read(randfd, buf, len);
-    assert(r == len);
-
-    //getsetattr(buf, fd);
+//    r = read(randfd, buf, len);
+//    assert(r == len);
 
     memcpy(check + offset, buf, len);
     r = pwrite(fd, buf, len, offset);
