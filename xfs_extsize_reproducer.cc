@@ -25,9 +25,7 @@ void getsetattr(char *randbuf, int fd) {
   if (s2 > 100)
     s2 -= 10;
   int r = fsetxattr(fd, "user.ceph._", randbuf, s1, 0);
-  assert(r == s1);
   r = fsetxattr(fd, "user.ceph.snapset", randbuf + s1, s2, 0);
-  assert(r == s2);
 }
 
 int main() {
