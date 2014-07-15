@@ -30,17 +30,17 @@ int main(int argc, char **argv) {
     r = ioctl(fd, XFS_IOC_FSGETXATTR, &fsx);
     if (r < 0) {
       int ret = -errno;
-      std::cerr << "FSGETXATTR: " << ret << std::endl;
+      std::cout << "FSGETXATTR: " << ret << std::endl;
       return ret;
     }
 
     // already set?
     if (fsx.fsx_xflags & XFS_XFLAG_EXTSIZE) {
-      std::cerr << "already set" << std::endl;
+      std::cout << "already set" << std::endl;
       return 0;
     }
 
-    std::cerr << fsx.fsx_nextents << " exents, extsize is " << fsx.fsx_extsize << std::endl;
+    std::cout << fsx.fsx_nextents << " exents, extsize is " << fsx.fsx_extsize << std::endl;
 
     unsigned val = 4<<20;
     fsx.fsx_xflags |= XFS_XFLAG_EXTSIZE;
@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
   
     if (ioctl(fd, XFS_IOC_FSSETXATTR, &fsx) < 0) {
       int ret = -errno;
-      std::cerr << "FSSETXATTR: " << ret << std::endl;
+      std::cout << "FSSETXATTR: " << ret << std::endl;
       return ret;
     }
 
@@ -56,15 +56,15 @@ int main(int argc, char **argv) {
     r = ioctl(fd, XFS_IOC_FSGETXATTR, &fsx2);
     if (r < 0) {
       int ret = -errno;
-      std::cerr << "FSGETXATTR: " << ret << std::endl;
+      std::cout << "FSGETXATTR: " << ret << std::endl;
       return ret;
     }
 
     if (fsx2.fsx_xflags & XFS_XFLAG_EXTSIZE) {
-      std::cerr << "successfully set to " << fsx2.fsx_extsize << std::endl;
+      std::cout << "successfully set to " << fsx2.fsx_extsize << std::endl;
     }
   } else {
-    std::cerr << "did not set extsize" << std::endl;
+    std::cout << "did not set extsize" << std::endl;
   }
 
   char *buf = new char[OBJSIZE];
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
     memcpy(check + offset, buf, len);
 
     if (argc >= 2 && (strchr(argv[1], 'f') != NULL)) {
-      std::cerr << "fadvising" << std::endl;
+      std::cout << "fadvising" << std::endl;
       r = posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED);
       assert(r == 0);
     }
@@ -105,10 +105,26 @@ int main(int argc, char **argv) {
 
     fd = open("test", O_RDWR, 0666);
     assert(fd >= 0);
-    r = pread(fd, buf, OBJSIZE, 0);
+    int len = pread(fd, buf, OBJSIZE, 0);
+    assert(len >= 0);
 
-    r = memcmp(buf, check, r);
-    assert(r == 0);
+    r = memcmp(buf, check, len);
+    if (r != 0) {
+      std::cout << "bufs don't match, outputting differing extents:" << std::endl;
+      bool matching = buf[0] == check[0];
+      int begin = 0;
+      for (int i = 0; i < len; ++i) {
+	if ((buf[i] == check[i]) ^ matching) {
+	  if (!matching) {
+	    std::cout << begin << "~" << i-begin << " does not match" << std::endl;
+	    matching = true;
+	  } else {
+	    matching = false;
+	  }
+	}
+      }
+      return 1;
+    }
   }
 
   delete[] buf;
