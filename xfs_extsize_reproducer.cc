@@ -115,13 +115,13 @@ int main(int argc, char **argv) {
       int begin = 0;
       for (int i = 0; i < len; ++i) {
 	if ((buf[i] == check[i]) ^ matching) {
-	  begin = i;
 	  if (!matching) {
 	    std::cout << begin << "~" << i-begin-1 << " does not match" << std::endl;
 	    matching = true;
 	  } else {
 	    matching = false;
 	  }
+	  begin = i;
 	}
       }
       return 1;
