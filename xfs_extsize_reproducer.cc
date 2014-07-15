@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
   assert(fd >= 0);
   int r = 0;
 
-  if (argc < 2 || argv[1][0] == 'e') {
+  if (argc >= 2 && (argv[1][0] == 'e' || argv[1][0] == 'a')) {
     struct fsxattr fsx;
     r = ioctl(fd, XFS_IOC_FSGETXATTR, &fsx);
     if (r < 0) {
@@ -74,8 +74,10 @@ int main(int argc, char **argv) {
     r = pwrite(fd, buf, len, offset);
     assert(r == len);
 
-    r = posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED);
-    assert(r == 0);
+    if (argc >= 2 && (argv[1][0] == 'f' || argv[1][0] == 'a')) {
+      r = posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED);
+      assert(r == 0);
+    }
     fsync(fd);
 
     if (rand() % 3 == 0)
