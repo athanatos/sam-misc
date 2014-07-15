@@ -18,6 +18,7 @@ int main() {
   int fd = open("test", O_RDWR|O_CREAT|O_EXCL, 0666);
   assert(fd >= 0);
 
+#if 0
   struct fsxattr fsx;
   int r = ioctl(fd, XFS_IOC_FSGETXATTR, &fsx);
   if (r < 0) {
@@ -55,6 +56,7 @@ int main() {
   if (fsx2.fsx_xflags & XFS_XFLAG_EXTSIZE) {
     std::cerr << "successfully set to " << fsx2.fsx_extsize << std::endl;
   }
+#endif
 
   char *buf = new char[OBJSIZE];
   char *check = new char[OBJSIZE];
