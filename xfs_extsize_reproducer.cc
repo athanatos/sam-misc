@@ -115,6 +115,7 @@ int main(int argc, char **argv) {
       int begin = 0;
       for (int i = 0; i < len; ++i) {
 	if ((buf[i] == check[i]) ^ matching) {
+	  begin = i + 1;
 	  if (!matching) {
 	    std::cout << begin << "~" << i-begin << " does not match" << std::endl;
 	    matching = true;
