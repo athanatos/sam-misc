@@ -7,8 +7,28 @@
 #include <unistd.h>
 #include <iostream>
 #include <string.h>
+#include <sys/types.h>
+#include <attr/xattr.h>
 
 #define OBJSIZE (4<<20)
+#define ATTRSIZEMAX (1<<10)
+
+void getsetattr(char *randbuf, int fd) {
+  char buf[ATTRSIZEMAX];
+  fgetxattr(fd, "user.ceph._", buf, sizeof(buf));
+  fgetxattr(fd, "user.ceph.snapset", buf, sizeof(buf));
+
+  int s1 = rand() % ATTRSIZEMAX;
+  if (s1 > 100)
+    s1 -= 10;
+  int s2 = rand() % ATTRSIZEMAX;
+  if (s2 > 100)
+    s2 -= 10;
+  int r = fsetxattr(fd, "user.ceph._", randbuf, s1, 0);
+  assert(r == s1);
+  r = fsetxattr(fd, "user.ceph.snapset", randbuf + s1, s2, 0);
+  assert(r == s2);
+}
 
 int main() {
   int randfd = open("/dev/urandom", O_RDONLY);
@@ -68,6 +88,9 @@ int main() {
 
     r = read(randfd, buf, len);
     assert(r == len);
+
+    getsetattr(buf, fd);
+
     memcpy(check + offset, buf, len);
     r = pwrite(fd, buf, len, offset);
     assert(r == len);
