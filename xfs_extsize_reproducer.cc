@@ -13,12 +13,19 @@
 #define OBJSIZE (4<<20)
 #define ATTRSIZEMAX (1<<10)
 
+void drop_caches() {
+  int fd = open("/proc/sys/vm/drop_caches", O_WRONLY);
+  assert(fd >= 0);
+  int r = write(fd, "3", 1);
+  assert(r == 1);
+}
+
 int main(int argc, char **argv) {
   int fd = open("test", O_RDWR|O_CREAT|O_EXCL, 0666);
   assert(fd >= 0);
   int r = 0;
 
-  if (argc >= 2 && (argv[1][0] == 'e' || argv[1][0] == 'a')) {
+  if (argc >= 2 && (strchr(argv[1], 'e') != NULL)) {
     struct fsxattr fsx;
     r = ioctl(fd, XFS_IOC_FSGETXATTR, &fsx);
     if (r < 0) {
@@ -74,13 +81,16 @@ int main(int argc, char **argv) {
     r = pwrite(fd, buf, len, offset);
     assert(r == len);
 
-    if (argc >= 2 && (argv[1][0] == 'f' || argv[1][0] == 'a')) {
+    if (argc >= 2 && (strchr(argv[1], 'f') != NULL)) {
       std::cerr << "fadvising" << std::endl;
       r = posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED);
       assert(r == 0);
     }
     close(fd);
 
+    if (argc >= 2 && (strchr(argv[1], 'd') != NULL)) {
+      drop_caches();
+    }
     char *check = new char[OBJSIZE];
 
     fd = open("test", O_RDWR, 0666);
