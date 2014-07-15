@@ -17,6 +17,7 @@
 int main() {
   int fd = open("test", O_RDWR|O_CREAT|O_EXCL, 0666);
   assert(fd >= 0);
+  int r = 0;
 
 #if 0
   struct fsxattr fsx;
