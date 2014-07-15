@@ -1,5 +1,5 @@
 /**
- * Try changing extsize on a non-empty sparse object
+ * Test extsize behavior
  */
 
 #include <xfs/xfs.h>
