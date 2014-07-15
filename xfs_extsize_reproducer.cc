@@ -124,6 +124,9 @@ int main(int argc, char **argv) {
 	  begin = i;
 	}
       }
+      if (!matching) {
+	std::cout << begin << "~" << len-begin-1 << " does not match" << std::endl;
+      }
       return 1;
     }
   }
