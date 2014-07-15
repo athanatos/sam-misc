@@ -100,6 +100,10 @@ int main() {
     close(fd);
     fd = open("test", O_RDWR, 0666);
     assert(fd >= 0);
+    r = pread(fd, buf, OBJSIZE, 0);
+    assert(r == OBJSIZE);
+    r = memcmp(buf, check, OBJSIZE);
+    assert(r == 0);
   }
 
   r = pread(fd, buf, OBJSIZE, 0);
