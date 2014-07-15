@@ -75,6 +75,7 @@ int main(int argc, char **argv) {
     assert(r == len);
 
     if (argc >= 2 && (argv[1][0] == 'f' || argv[1][0] == 'a')) {
+      std::cerr << "fadvising" << std::endl;
       r = posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED);
       assert(r == 0);
     }
