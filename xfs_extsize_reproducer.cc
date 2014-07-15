@@ -8,7 +8,6 @@
 #include <iostream>
 #include <string.h>
 #include <sys/types.h>
-#include <attr/xattr.h>
 #include <fcntl.h>
 
 #define OBJSIZE (4<<20)
@@ -19,9 +18,8 @@ int main() {
   assert(fd >= 0);
   int r = 0;
 
-#if 0
   struct fsxattr fsx;
-  int r = ioctl(fd, XFS_IOC_FSGETXATTR, &fsx);
+  r = ioctl(fd, XFS_IOC_FSGETXATTR, &fsx);
   if (r < 0) {
     int ret = -errno;
     std::cerr << "FSGETXATTR: " << ret << std::endl;
@@ -57,11 +55,8 @@ int main() {
   if (fsx2.fsx_xflags & XFS_XFLAG_EXTSIZE) {
     std::cerr << "successfully set to " << fsx2.fsx_extsize << std::endl;
   }
-#endif
 
   char *buf = new char[OBJSIZE];
-  char *check = new char[OBJSIZE];
-  memset(check, 0, OBJSIZE);
   memset(buf, 0, OBJSIZE);
   int offset = -1;
   int len = -1;
@@ -72,7 +67,6 @@ int main() {
     assert(len <= OBJSIZE);
     assert(offset + len <= OBJSIZE);
 
-    memcpy(check + offset, buf, len);
     r = pwrite(fd, buf, len, offset);
     assert(r == len);
 
@@ -83,19 +77,18 @@ int main() {
     if (rand() % 3 == 0)
       syncfs(fd);
     close(fd);
+
+    char *check = new char[OBJSIZE];
+
     fd = open("test", O_RDWR, 0666);
     assert(fd >= 0);
-    r = pread(fd, buf, OBJSIZE, 0);
+    r = pread(fd, check, OBJSIZE, 0);
+
     r = memcmp(buf, check, r);
     assert(r == 0);
+    delete[] check;
   }
 
-  r = pread(fd, buf, OBJSIZE, 0);
-  assert(r == OBJSIZE);
-  r = memcmp(buf, check, OBJSIZE);
-  assert(r == 0);
-
   delete[] buf;
-  delete[] check;
   close(fd);
 }
