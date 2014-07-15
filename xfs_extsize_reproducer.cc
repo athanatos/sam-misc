@@ -79,7 +79,6 @@ int main(int argc, char **argv) {
       r = posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED);
       assert(r == 0);
     }
-    fsync(fd);
     close(fd);
 
     char *check = new char[OBJSIZE];
