@@ -9,6 +9,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <attr/xattr.h>
+#include <fnctl.h>
 
 #define OBJSIZE (4<<20)
 #define ATTRSIZEMAX (1<<10)
@@ -97,8 +98,10 @@ int main() {
     r = pwrite(fd, buf, len, offset);
     assert(r == len);
 
-    if (rand() % 3 == 0)
-      fsync(fd);
+    r = posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED);
+    assert(r == 0);
+    fsync(fd);
+
     if (rand() % 3 == 0)
       syncfs(fd);
     close(fd);
