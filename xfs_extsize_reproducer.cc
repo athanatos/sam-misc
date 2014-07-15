@@ -22,6 +22,7 @@ void drop_caches() {
 
 int main(int argc, char **argv) {
   int fd = open("test", O_RDWR|O_CREAT|O_EXCL, 0666);
+  int randfd = open("/dev/urandom", O_RDONLY);
   assert(fd >= 0);
   int r = 0;
 
@@ -68,18 +69,29 @@ int main(int argc, char **argv) {
   }
 
   char *buf = new char[OBJSIZE];
+  char *check = new char[OBJSIZE];
   memset(buf, 0, OBJSIZE);
+  memset(check, 0, OBJSIZE);
   int offset = -1;
   int len = -1;
   while (scanf("%d %d\n", &offset, &len) == 2) {
     assert(len >= 0);
     assert(offset >= 0);
-    std::cout << offset << "~" << len << std::endl;
     assert(len <= OBJSIZE);
     assert(offset + len <= OBJSIZE);
 
+    std::cout << offset << "~" << len;
+    if (argc >= 2 && (strchr(argv[1], 'r') != NULL)) {
+      std::cout << " - random" << std::endl;
+      read(randfd, buf, len);
+    } else {
+      std::cout << " - zero" << std::endl;
+      memset(buf, 0, len);
+    }
+
     r = pwrite(fd, buf, len, offset);
     assert(r == len);
+    memcpy(check + offset, buf, len);
 
     if (argc >= 2 && (strchr(argv[1], 'f') != NULL)) {
       std::cerr << "fadvising" << std::endl;
@@ -91,17 +103,16 @@ int main(int argc, char **argv) {
     if (argc >= 2 && (strchr(argv[1], 'd') != NULL)) {
       drop_caches();
     }
-    char *check = new char[OBJSIZE];
 
     fd = open("test", O_RDWR, 0666);
     assert(fd >= 0);
-    r = pread(fd, check, OBJSIZE, 0);
+    r = pread(fd, buf, OBJSIZE, 0);
 
     r = memcmp(buf, check, r);
     assert(r == 0);
-    delete[] check;
   }
 
   delete[] buf;
+  close(randfd);
   close(fd);
 }
