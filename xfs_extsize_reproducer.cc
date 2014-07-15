@@ -84,8 +84,12 @@ int main() {
     assert(len <= OBJSIZE);
     assert(offset + len <= OBJSIZE);
 
-    r = read(randfd, buf, len);
-    assert(r == len);
+    if (len > 8<<10) {
+      memset(buf, 0, len);
+    } else {
+      r = read(randfd, buf, len);
+      assert(r == len);
+    }
 
     getsetattr(buf, fd);
 
