@@ -11,7 +11,6 @@
 #include <fcntl.h>
 
 #define OBJSIZE (4<<20)
-#define ATTRSIZEMAX (1<<10)
 
 void drop_caches() {
   int fd = open("/proc/sys/vm/drop_caches", O_WRONLY);
