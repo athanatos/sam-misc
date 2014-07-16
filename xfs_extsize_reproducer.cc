@@ -20,6 +20,7 @@ void drop_caches() {
 }
 
 int main(int argc, char **argv) {
+  int ret = 0;
   int fd = open("test", O_RDWR|O_CREAT|O_EXCL, 0666);
   int randfd = open("/dev/urandom", O_RDONLY);
   assert(fd >= 0);
@@ -111,28 +112,22 @@ int main(int argc, char **argv) {
 
     r = memcmp(buf, check, len);
     if (r != 0) {
-      std::cout << "bufs don't match, outputting differing extents:" << std::endl;
-      bool matching = buf[0] == check[0];
-      int begin = 0;
-      for (int i = 0; i < len; ++i) {
-	if ((buf[i] == check[i]) ^ matching) {
-	  if (!matching) {
-	    std::cout << begin << "~" << i-begin-1 << " does not match" << std::endl;
-	    matching = true;
-	  } else {
-	    matching = false;
-	  }
-	  begin = i;
-	}
-      }
-      if (!matching) {
-	std::cout << begin << "~" << len-begin-1 << " does not match" << std::endl;
-      }
-      return 1;
+      std::cout << "bufs don't match, writting correct buf to test.correct:"
+		<< std::endl;
+      int correctfd = open("test.correct", O_WRONLY|O_CREAT|O_EXCL);
+      assert(correctfd > 0);
+      write(correctfd, check, len);
+      close(correctfd);
+      ret = 1;
+      goto outclose;
     }
   }
 
+   
+outclose:
   delete[] buf;
+  delete[] check;
   close(randfd);
   close(fd);
+  return ret;
 }
