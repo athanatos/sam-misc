@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
     if (r != 0) {
       std::cout << "bufs don't match, writting correct buf to test.correct:"
 		<< std::endl;
-      int correctfd = open("test.correct", O_WRONLY|O_CREAT|O_EXCL);
+      int correctfd = open("test.correct", O_WRONLY|O_CREAT|O_EXCL, 0666);
       assert(correctfd > 0);
       write(correctfd, check, len);
       close(correctfd);
