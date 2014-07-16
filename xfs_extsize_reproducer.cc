@@ -124,6 +124,7 @@ int main(int argc, char **argv) {
   }
 
    
+  std::cout << "no error detected" << std::endl;
 outclose:
   delete[] buf;
   delete[] check;
