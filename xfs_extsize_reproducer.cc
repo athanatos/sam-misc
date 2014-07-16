@@ -94,6 +94,12 @@ int main(int argc, char **argv) {
     assert(r == len);
     memcpy(check + offset, buf, len);
 
+    if (argc >= 2 && (strchr(argv[1], 's') != NULL)) {
+      std::cout << "fsyncing" << std::endl;
+      r = fsync(fd);
+      assert(r == 0);
+    }
+
     if (argc >= 2 && (strchr(argv[1], 'f') != NULL)) {
       std::cout << "fadvising" << std::endl;
       r = posix_fadvise(fd, offset, len, POSIX_FADV_DONTNEED);
@@ -102,6 +108,7 @@ int main(int argc, char **argv) {
     close(fd);
 
     if (argc >= 2 && (strchr(argv[1], 'd') != NULL)) {
+      std::cout << "dropping caches" << std::endl;
       drop_caches();
     }
 
