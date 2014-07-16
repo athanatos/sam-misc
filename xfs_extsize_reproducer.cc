@@ -40,7 +40,8 @@ int main(int argc, char **argv) {
       return 0;
     }
 
-    std::cout << fsx.fsx_nextents << " exents, extsize is " << fsx.fsx_extsize << std::endl;
+    std::cout << fsx.fsx_nextents << " exents, extsize is " << fsx.fsx_extsize
+	      << std::endl;
 
     unsigned val = 4<<20;
     fsx.fsx_xflags |= XFS_XFLAG_EXTSIZE;
